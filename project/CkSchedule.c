@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <time.h>
 
+void printfile(char * filename, int ,int);
 int main()
 {
 	int option, pid;
@@ -69,25 +70,9 @@ int main()
 					endwin();
 					exit(1);
 				}
-				move(row, col); row++;
-				addstr("start  end  schedule");
-				move(row, col); row++;
-				addstr("time   time ");
-				move(row, col); row++;
-				addstr("----------------------------------");
-				refresh();
-				while(1)
-				{
-					fgets(schedule, 40, fa);
-					if(feof(fa))
-						break;
-					move(row,col);row++;
-					addstr(schedule);
-					refresh();
-					sleep(1);
-				}
+				fclose(fa);
 
-
+				printfile(filename, row, col);		
 
 				refresh();
 				sleep(3);
@@ -108,12 +93,62 @@ int main()
 			addstr("Type date when you want to check the schedule");
 			move(row, col); row++;
 			addstr("example : '210612'");
-			scanf("%s", filename);
-			
+			refresh();
+			while(1)
+			{
+				scanf("%s", filename);
+				if(strlen(filename) == 6)
+					break;
+				move(row, col);
+				addstr("Please type again");
+				refresh();
+			}
+			chdir("schedule");
+			fa = fopen(filename, "rt");
+			if(fa == NULL)
+			{
+				move(row,col);
+				addstr(filename);
+				addstr(" has no schedule");
+				row++;
+				refresh();
+				sleep(2);
+				endwin();
+				exit(1);
+			}
+			printfile(filename, row, col);
+
+			sleep(1);
+			endwin();
+			exit(1);
 		}
 		default:
 			break;
 	}
 	endwin();
 	exit(1);
+}
+void printfile(char * filename, int row, int col)
+{
+	char schedule[40];
+	FILE * fa = NULL;
+	fa = fopen(filename, "rt");
+	clear();
+	move(row, col); row++;
+	addstr("start time / end time / schedule");
+	move(row, col); row++;
+	addstr("--------------------------------");
+	refresh();
+	while(1)
+	{
+		fgets(schedule, 40, fa);
+		if(feof(fa))
+			break;
+		move(row, col); row++;
+		addstr(schedule);
+		refresh();
+		sleep(1);
+	}
+	fclose(fa);
+
 }

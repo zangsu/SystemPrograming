@@ -91,7 +91,7 @@ int main()
 					clear();
 					wait(NULL);
 					move(row, col); row++;
-					addstr("this is option 1 parent process");
+					addstr("going to main...");
 					refresh();
 					sleep(1);
 
@@ -99,6 +99,27 @@ int main()
 				break;
 			case 2:
 					//edit schedule
+				pid = fork();
+				if(pid == 0)//child process
+				{
+					initscr();
+					strcpy(program, path);
+					strcat(program, "/EdSchedule");
+					endwin();
+					execlp(program, program, NULL);
+					perror("execlp failed");
+					exit(1);
+				}
+				else
+				{
+					initscr();
+					clear();
+					wait(NULL);
+					move(20, col);
+					addstr("going to main...");
+					refresh();
+					sleep(1);
+				}
 				break;
 			case 3:
 				//end program
