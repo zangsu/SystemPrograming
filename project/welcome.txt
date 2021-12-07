@@ -1,0 +1,4 @@
+welcome!
+ 
+This is Scheduler to help manage your schedule.
+What do you want?
