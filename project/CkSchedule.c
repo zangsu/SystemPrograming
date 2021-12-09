@@ -7,6 +7,10 @@
 #include <sys/wait.h>
 #include <time.h>
 
+#define Srow = 5
+#define Scol = 10
+#define Maxstr 60
+
 void printfile(char * filename, int ,int);
 int main()
 {
@@ -34,7 +38,7 @@ int main()
 		{
 			//get today date
 			time_t timer;
-			char filename[7], mon[3], day[3], schedule[40];
+			char filename[7], mon[3], day[3], schedule[Maxstr];
 			struct tm* t;
 			timer = time(NULL);
 			t = localtime(&timer);
@@ -87,7 +91,7 @@ int main()
 		}
 		case 2:
 		{
-			char filename[7], schedule[40], check[2];
+			char filename[7], schedule[Maxstr], check[2];
 			clear();
 			move(row, col); row++;
 			addstr("Type date when you want to check the schedule");
@@ -130,7 +134,7 @@ int main()
 }
 void printfile(char * filename, int row, int col)
 {
-	char schedule[40];
+	char schedule[Maxstr];
 	FILE * fa = NULL;
 	fa = fopen(filename, "rt");
 	clear();
@@ -141,7 +145,7 @@ void printfile(char * filename, int row, int col)
 	refresh();
 	while(1)
 	{
-		fgets(schedule, 40, fa);
+		fgets(schedule, Maxstr, fa);
 		if(feof(fa))
 			break;
 		move(row, col); row++;

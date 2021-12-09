@@ -10,9 +10,10 @@
 
 #define startrow 5
 #define startcol 8
+#define Maxstr 60
 int main()
 {
-	char message[50], temp, path[60], program[20]; //store message to print, 
+	char message[Maxstr], temp, path[60], program[20]; //store message to print, 
 	int option, pid, apipe[2]; //store option number
 	FILE * fa = NULL;
 	int row = 5, col = 8;
@@ -44,9 +45,10 @@ int main()
 		addstr(message);
 		refresh();
 		row++;
-		sleep(3);
+		sleep(1);
 		fscanf(fa, "%c", &temp);
 	}
+	sleep(2);
 	endwin();
 	//main page
 	while(1)
@@ -145,9 +147,8 @@ int main()
 				sleep(3);
 		}
 
+		clear();
 		move(row, col); row++;
-		addstr("line clear");
-		refresh();
 		sleep(1);
 	}
 		sleep(5);
