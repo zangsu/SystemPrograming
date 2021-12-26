@@ -10,6 +10,8 @@
 #define Srow 5
 #define Scol 10
 #define Maxstr 60
+void go_to_main(int);
+void print_tail();
 
 int main()
 {
@@ -21,6 +23,7 @@ int main()
 		int option;
 		char filename[7];
 		FILE * fa = NULL;
+		signal(SIGINT, go_to_main );
 
 		initscr();
 		clear();
@@ -41,7 +44,10 @@ int main()
 				{
 					int new = 0;//check file is new
 					int sh, sm, eh, em;
+					char num[3];
+					char schedule[Maxstr-6], line[Maxstr];
 					clear();
+					print_tail();
 					row = Srow;
 					move(row, col); row++;
 					addstr("Type date when you want to add the schedule");
@@ -53,10 +59,19 @@ int main()
 						scanf("%s", filename);
 						if(strlen(filename) == 6)
 							break;
+						fflush(stdin);
 						move(row, col);
 						addstr("Please type again");
 						refresh();
 					}
+					clear();
+					row = Srow;
+					move(row, col); col = col + 6;
+					addstr("Date :");
+					move(row, col); row++;
+					addstr(filename);
+					refresh();
+					col = Scol;
 					chdir("schedule");
 					fa = fopen(filename, "r+");
 					if(fa == NULL)
@@ -69,19 +84,120 @@ int main()
 					move(row, col); row++;
 					addstr("example : '06:30'");
 					refresh();
-					scanf("%d:%d", &sh, &sm);
+					while(1)
+					{
+						scanf("%d:%d", &sh, &sm);
+						move(row,col); 
+						if(sh >= 0 && sh <= 23 && sm > 0 && sm < 60)
+							break;
+						addstr("type again");
+						refresh();
+					}
+					fflush(stdin);
 					row = row-2;
 					move(row, col); row++;
 					addstr("type time when you end the schedule");
 					move(row, col); row++;
 					addstr("example : '21:30'");
 					refresh();
+					while(1)
+					{
+						scanf("%d:%d", &eh, &em);
+						move(row, col);
+						if(eh >= 0 && eh <24 && em >= 0 && em < 60) 
+							break;
+						addstr("type again");
+						refresh();
+					}
+					fflush(stdin);
+					move(row, col); row++;
+					if(new == 1)
+					{
+						addstr("type schedule what you want to add");
+						refresh();
+						gets(line);
+						fflush(stdin);
+						addstr("gecha!");
+						refresh();
+						fprintf(fa,"%d:%d   %d:%d   %s",sh, sm, eh, em, line);
+						row = Srow;
+						move(row, col);
+						addstr("Add Schedule successfully");
+						refresh();
+						sleep(1);
+						endwin();
+						exit(1);
+					}
+					else
+					{
+						FILE * fb = NULL;
+						int ish, ism, ieh, iem, write = 0;
+						char iline[Maxstr];
+						while(1)
+						{
+							fscanf(fa, "%d:%d   %d:%d   %[^/n]", &ish, &ism, &ieh, &iem,iline);
+							if(feof(fa))
+								break;
+							if( (100 * ish + ism < 100*sh + sm && 100*sh + sm < 100*ieh + iem) || (100 * ish + ism < 100 * eh + em && 100 * eh + em < 100 * ieh + iem) )
+							{
+								move(row, col); 
+								addstr("schedule is already exist in that time");
+								refresh();
+								sleep(2);
+								endwin();
+								exit(1);
+							}
+						}
+						fseek(fa, 0L, SEEK_SET);
+						fb = fopen("temp", "w");
+						while(1)
+						{
+							fscanf(fa, "%d:%d   %d:%d   %[^\n]", &ish, &ism, &ieh, &iem, iline);
+							if(feof(fa))
+							{
+								if(write == 0)
+								{
+									move(row, col); row++;
+									addstr("type schedule what you want to add");
+									refresh();
+									scanf("%[^/n]", line);
+									fprintf(fb, "%d:%d   %d:%d   %s", sh, sm, eh, em, line);
+								}
+								break;
+							}
+							if(100 * ish + ism > 100 * eh + em)
+							{
+								move(row, col); row++;
+								addstr("type schedule what you want to add");
+								refresh();
+								scanf("%[^/n]", line);
+								fprintf(fb, "%d:%d   %d:%d   %s", sh, sm, eh, em, line);
+								write = 1;
+							}
+							fprintf(fb, "%d:%d   %d:%d   %s", ish, ism, ieh, iem, iline);
+						}
+						fclose(fb);
+					}
 
-				/*
-				   check code whether that time is enable
-				   */
-
-					break;
+					fclose(fa);
+					if(remove(filename) == -1)
+					{
+						perror("fail to remove");
+						exit(1);
+					}
+					if(rename("temp", filename) == -1)
+					{
+						perror("fail to rename");
+						exit(1);
+					}
+					clear();
+					row = Srow;
+					move(row, col);
+					addstr("Add schedule successfully");
+					refresh();
+					sleep(1);
+					endwin();
+					exit(1);
 				}
 			case 2:
 				{
@@ -89,6 +205,7 @@ int main()
 					char schedule[Maxstr];
 					int line = 1, delete;
 					clear();
+					print_tail();
 					row = Srow;
 					move(row, col); row++;
 					addstr("Type date when you want to add the schedule");
@@ -217,4 +334,32 @@ int main()
 	}
 	endwin();
 	exit(1);
+}
+void go_to_main(int signum)
+{
+	int row, col;
+	clear();
+	row = Srow;
+	col = Scol;
+	move(row, col);
+	addstr("Going to main.");
+	refresh();
+	sleep(1);
+	col = col+strlen("Going to main.");
+	move(row, col);
+	addstr(".");
+	refresh();
+	sleep(1);
+	col++;
+	move(row, col);
+	addstr(".");
+	refresh();
+	sleep(1);
+	endwin();
+	exit(1);
+}
+void print_tail()
+{
+	move(20, 45);
+	addstr("press Ctrl + 'C' to go main");
 }

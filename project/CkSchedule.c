@@ -7,28 +7,31 @@
 #include <sys/wait.h>
 #include <time.h>
 
-#define Srow = 5
-#define Scol = 10
+#define Srow  5
+#define Scol  10
 #define Maxstr 60
 
 void printfile(char * filename, int ,int);
+void print_tail();
+void go_to_main(int signum);
 int main()
 {
 	int option, pid;
 	char path[30];
 	FILE * fa = NULL;
 	int row = 5, col = 10;
+	signal(SIGINT, go_to_main);
 
 	initscr();
 	clear();
-	move(0,0);
+	move(row, col); row++;
 	addstr("---CHECK SCHEDULE!!---");
-	move(1, 0);
+	move(row, col); row++;
 	addstr("1.check today schedule.");
-	move(2, 0);
+	move(row, col); row++;
 	addstr("2.check another day schedule.");
-	move(3, 0);
-	addstr("3. go back to main");
+	move(row, col); row++;
+	addstr("3.go back to main");
 	refresh();
 
 	scanf("%d", &option);
@@ -93,6 +96,7 @@ int main()
 		{
 			char filename[7], schedule[Maxstr], check[2];
 			clear();
+			print_tail();
 			move(row, col); row++;
 			addstr("Type date when you want to check the schedule");
 			move(row, col); row++;
@@ -126,6 +130,28 @@ int main()
 			endwin();
 			exit(1);
 		}
+		case 3:
+		{
+			clear();
+			row = Srow;
+			move(row,col);
+			addstr("Going to main.");
+			refresh();
+			sleep(1);
+			col = col+strlen("Going to main.");
+			move(row, col);
+			addstr(".");
+			refresh();
+			sleep(1);
+			col++;
+			move(row, col);
+			addstr(".");
+			refresh();
+			sleep(1);
+			endwin();
+			exit(1);
+
+		}
 		default:
 			break;
 	}
@@ -155,4 +181,32 @@ void printfile(char * filename, int row, int col)
 	}
 	fclose(fa);
 
+}
+void print_tail()
+{
+	move(20, 45);
+	addstr("press Ctrl + 'C' to go main menu");
+}
+void go_to_main(int signum)
+{
+	int row, col;
+	clear();
+	row = Srow;
+	col = Scol;
+	move(row, col);
+	addstr("Going to main.");
+	refresh();
+	sleep(1);
+	col = col + strlen("Going to main.");
+	move(row, col);
+	addstr(".");
+	refresh();
+	sleep(1);
+	col++;
+	move(row, col);
+	addstr(".");
+	refresh();
+	sleep(1);
+	endwin();
+	exit(1);
 }
